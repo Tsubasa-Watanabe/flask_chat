@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+            socket.on('message', function(msg) {
+                var ul = document.getElementById('messages');
+                var li = document.createElement('li');
+                li.appendChild(document.createTextNode(msg.sender + ': ' + msg.msg));
+                ul.appendChild(li);
+            });
+
+            var form = document.getElementById('form');
+            form.onsubmit = function(event) {
+                event.preventDefault();
+                var input = document.getElementById('message');
+                socket.emit('message', { sender: '{{ username }}', msg: input.value });
+                input.value = '';
+            };
+        });
+    </script>
+</head>
+<body>
+    <h1>Welcome, {{ username }}!</h1>
+    <ul id="messages">
+        {% for message in messages %}
+            <li>{{ message.sender }}: {{ message.content }}</li>
+        {% endfor %}
+    </ul>
+    <form id="form">
+        <input type="text" id="message" required>
+        <button type="submit">Send</button>
+    </form>
+    <br>
+    <a href="/logout">Logout</a>
+</body>
+</html>
